@@ -1,0 +1,23 @@
+
+options:
+  skipAggs: True
+yearly:
+  # can be either a CETS id (from WDI) or a dict of attributes:
+  # id: (CETS id)
+  # source: (defaults to 2 for WDI)
+  # multiplier: (defaults to 1)
+  # precision: (currently defaulting to API value)
+  # name: (defaults to API name)
+  - id: SP.POP.TOTL
+    multiplier: 0.001
+    precision:  0
+    name: "Population (000s)"
+  - NY.GDP.PCAP.CD
+  - EN.ATM.CO2E.KT
+quarterly:
+monthly:
+economies:
+  # defaults to the WDI list and displays alphabetically regardless of order here
+  - USA
+  - CAN
+  - MEX
