@@ -38,6 +38,7 @@ def format(key, wb=None, attrs={}, precision=None):
     if key in _formats:
         return _formats[key]
 
+    attrs = attrs.copy()
     if precision is not None:
         attrs['num_format'] = '#,##0'
         if precision:
@@ -108,10 +109,9 @@ toc = xls.add_worksheet('Overview')
 toc.set_column(0, 0, width=40)
 tocRow = 1
 
-format('bold', xls, {'bold': 1})
-format('colhdr', xls, {'bg_color': '#E0E0E0', 'bold': 1, 'text_wrap': 1})
-format('colhdr2', xls, {'bg_color': '#E0E0E0', 'bold': 1, 'text_wrap': 1, 'align': 'right'})
-format('ralign', xls, {'align': 'right'})
+# load styles
+for elem in ['title', 'header_row', 'data_column_header', 'data_cell']:
+    format(elem, xls, config['styles'].get(elem, {}))
 
 if docopts['--debug']:
     print('Parsed Config Info:', file=sys.stderr)
@@ -120,11 +120,14 @@ if docopts['--debug']:
 for cets,v in sheet_list.items():
     country = xls.add_worksheet(v)
 
-    country.write(0, 0, v, format('bold')) # country name in R1C1
+    country.write(0, 0, v, format('title')) # country name in R1C1
     toc.write_url(tocRow, 0, "internal:'{}'!A1".format(v), string=v)
     tocRow += 1
 
-    country.set_row(1, height=32, cell_format=format('colhdr'))
+    if config['styles'].get('header_row_height'):
+        country.set_row(1, height=config['styles']['header_row_height'], cell_format=format('header_row'))
+    else:
+        country.set_row(1, cell_format=format('header_row'))
 
     df = None
     for source in set(map(lambda x: x['source'], config['yearly'])):
@@ -144,11 +147,13 @@ for cets,v in sheet_list.items():
         if elem['id'] in df.columns:
             # NB: column alignment seems to get ignored for cells that have values, so this
             # needs to set alignment at the cell level, not the column level which would be more convenient
-            country.set_column(col, col, width=13)
-            country.write(row, col, elem['name'], format('colhdr2'))
+            if config['styles'].get('data_column_width'):
+                country.set_column(col, col, width=config['styles']['data_column_width'])
+
+            country.write(row, col, elem['name'], format('data_column_header'))
             country.write_column(row+1, col,
                 (df[elem['id']] * elem['multiplier']).fillna(''),
-                cell_format=format('n{}'.format(elem['precision']), xls, precision=elem['precision']))
+                cell_format=format('n{}'.format(elem['precision']), xls, attrs=config['styles']['data_cell'], precision=elem['precision']))
 
             col += 1
 

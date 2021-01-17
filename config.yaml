@@ -21,3 +21,21 @@ economies:
   - USA
   - CAN
   - MEX
+styles:
+# stylesheets for various worksheet components: see https://xlsxwriter.readthedocs.io/format.html#format
+  title:
+    bold: 1
+    font_size: 18
+  header_row:
+    bg_color: "#E0E0E0"
+    bold: 1
+    text_wrap: 1
+  header_row_height: 32
+  data_column_header:
+    bg_color: "#E0E0E0"
+    bold: 1
+    text_wrap: 1
+    align: right
+  data_column_width: 13
+  data_cell:
+    align: right
